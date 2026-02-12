@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Random App</title>
+
+<style>
+body {
+  margin: 0;
+  text-align: center;
+  font-family: -apple-system;
+  color: white;
+  padding: 30px;
+
+  background: url('https://i.pinimg.com/736x/d5/ac/92/d5ac928883d6cdc3b52ab343c5df2667.jpg') no-repeat center center fixed;
+  background-size: cover;
+}
+
+/* Dark overlay for better readability */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+}
+
+button {
+  padding: 14px 18px;
+  font-size: 15px;
+  margin: 8px;
+  border-radius: 15px;
+  border: none;
+  color: white;
+}
+
+.said { background: #007aff; }
+.majda { background: #ff2d55; }
+.upload { background: #34c759; }
+.delete { background: #555; }
+
+img {
+  width: 250px;
+  margin-top: 20px;
+  border-radius: 20px;
+}
+
+#result {
+  margin-top: 20px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🎲 Random Picker</h1>
+
+<h3>Positions</h3>
+<button class="said" onclick="chooseSaidPosition()">Said Position</button>
+<button class="majda" onclick="chooseMajdaPosition()">Majda Position</button>
+
+<h3>Dares</h3>
+<button class="said" onclick="chooseSaidDare()">Said Dare</button>
+<button class="majda" onclick="chooseMajdaDare()">Majda Dare</button>
+
+<br><br>
+
+<button class="upload" onclick="startUpload()">Upload Pictures</button>
+<button class="delete" onclick="deleteAll()">🗑 Delete All</button>
+
+<input type="file" id="uploadInput" accept="image/*" style="display:none">
+
+<div id="result"></div>
+
+<script>
+
+let saidPositions = JSON.parse(localStorage.getItem("saidPositions")) || [];
+let majdaPositions = JSON.parse(localStorage.getItem("majdaPositions")) || [];
+
+const saidDares = [
+  "Do 15 pushups",
+  "Dance for 1 minute",
+  "Call someone randomly"
+];
+
+const majdaDares = [
+  "Sing a song",
+  "Do 10 squats",
+  "Act like a movie character"
+];
+
+let uploadTarget = "";
+
+function startUpload() {
+  const choice = prompt("Type 'Said' or 'Majda' to upload picture for:");
+  if (!choice) return;
+
+  if (choice.toLowerCase() === "said") {
+    uploadTarget = "said";
+  } else if (choice.toLowerCase() === "majda") {
+    uploadTarget = "majda";
+  } else {
+    alert("Please type Said or Majda");
+    return;
+  }
+
+  document.getElementById("uploadInput").click();
+}
+
+document.getElementById("uploadInput").addEventListener("change", function(event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    if (uploadTarget === "said") {
+      saidPositions.push(e.target.result);
+      localStorage.setItem("saidPositions", JSON.stringify(saidPositions));
+    } else if (uploadTarget === "majda") {
+      majdaPositions.push(e.target.result);
+      localStorage.setItem("majdaPositions", JSON.stringify(majdaPositions));
+    }
+    alert("Picture added!");
+  };
+
+  if (file) {
+    reader.readAsDataURL(file);
+  }
+});
+
+function chooseSaidPosition() {
+  if (saidPositions.length === 0) {
+    alert("Upload Said pictures first!");
+    return;
+  }
+  const random = saidPositions[Math.floor(Math.random() * saidPositions.length)];
+  document.getElementById("result").innerHTML = "<img src='" + random + "'>";
+}
+
+function chooseMajdaPosition() {
+  if (majdaPositions.length === 0) {
+    alert("Upload Majda pictures first!");
+    return;
+  }
+  const random = majdaPositions[Math.floor(Math.random() * majdaPositions.length)];
+  document.getElementById("result").innerHTML = "<img src='" + random + "'>";
+}
+
+function chooseSaidDare() {
+  const random = saidDares[Math.floor(Math.random() * saidDares.length)];
+  document.getElementById("result").innerHTML = "<h2>" + random + "</h2>";
+}
+
+function chooseMajdaDare() {
+  const random = majdaDares[Math.floor(Math.random() * majdaDares.length)];
+  document.getElementById("result").innerHTML = "<h2>" + random + "</h2>";
+}
+
+function deleteAll() {
+  if (confirm("Delete ALL pictures for both?")) {
+    saidPositions = [];
+    majdaPositions = [];
+    localStorage.removeItem("saidPositions");
+    localStorage.removeItem("majdaPositions");
+    document.getElementById("result").innerHTML = "";
+    alert("All pictures deleted.");
+  }
+}
+
+</script>
+
+</body>
+</html>
